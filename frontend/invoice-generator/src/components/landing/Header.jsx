@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FileText, Menu, X } from "lucide-react";
 import ProfileDropdown from "../layout/ProfileDropdown";
 import Button from "../ui/Button";
@@ -8,14 +8,16 @@ function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const isAuthenticated = true; // Replace with actual authentication logic
+  const isAuthenticated = false; // Replace with actual authentication logic
 
   const user = {
-    name: "Dimuthu",
+    name: "Dimuthu Rathnayaka",
     email: "info.dimuthulk@gmail.com",
   };
 
   const logout = () => {};
+
+  const navigate = useNavigate();
 
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
@@ -135,7 +137,7 @@ function Header() {
             {isAuthenticated ? (
               <div className="p-4">
                 <Button
-                  onClick={() => Navigate("/dashboard")}
+                  onClick={() => navigate("/dashboard")}
                   className="w-full"
                 >
                   Go to Dashboard
