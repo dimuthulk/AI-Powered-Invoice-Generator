@@ -1,0 +1,56 @@
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
+const connectDB = require("./config/db");
+
+const authRoutes = require("./routes/authRoutes");
+
+const app = express();
+
+// Middleware to handle CORS
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+// Connect to the database
+connectDB();
+
+// Middleware to parse JSON requests
+app.use(express.json());
+
+// Define routes
+app.get("/", (req, res) => {
+  res.status(200).send(`
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>AI-Powered Invoice Generator API</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin:40px; color:#333; }
+          .container{max-width:700px;margin:0 auto;}
+          a{color:#0366d6;}
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Welcome to the AI-Powered Invoice Generator API</h1>
+          <p>The API is running successfully.</p>
+        </div>
+      </body>
+    </html>
+  `);
+});
+app.use("/api/auth", authRoutes);
+
+// Start Server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port http://localhost:${PORT}`);
+});
