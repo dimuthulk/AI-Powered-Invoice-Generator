@@ -6,9 +6,9 @@ const {
   getInvoiceById,
   updateInvoice,
   deleteInvoice,
-} = require("../controllers/invoiceController");
+} = require("../controllers/invoiceController.js");
 
-const { protect } = require("../middlewares/authMiddleware");
+const { protect } = require("../middlewares/authMiddleware.js");
 
 const router = express.Router();
 

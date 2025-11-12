@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+const User = require("../models/User.js");
 
 const protect = async (req, res, next) => {
   let token;
@@ -16,20 +16,16 @@ const protect = async (req, res, next) => {
 
       // Get user from the token
       req.user = await User.findById(decoded.id).select("-password");
-      next();
+      return next();
     } catch (error) {
-      res.status(401).json({ message: "Not authorized, token failed" });
+      return res.status(401).json({ message: "Not authorized, token failed" });
     }
-  } else {
-    res.status(401).json({ message: "Not authorized, no token" });
   }
 
-  if (!token) {
-    res.status(401).json({ message: "Not authorized, no token" });
-  }
+  return res.status(401).json({ message: "Not authorized, no token" });
 };
 
 console.log("Type of protect:", typeof protect);
 
+// Export as named property so routes can destructure: const { protect } = require(...)
 module.exports = { protect };
-// Added a comment to refresh the module
