@@ -7,6 +7,7 @@ import {
 
 import { Toaster } from "react-hot-toast";
 import LandingPage from "./pages/LandingPage/LandingPage";
+import { AuthProvider } from "./context/AuthContext";
 import SignUp from "./pages/Auth/SignUp";
 import Login from "./pages/Auth/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -18,7 +19,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function App() {
   return (
-    <div>
+    <AuthProvider>
       <Router>
         <Routes>
           {/* Public Routes */}
@@ -48,7 +49,7 @@ function App() {
           },
         }}
       />
-    </div>
+    </AuthProvider>
   );
 }
 
