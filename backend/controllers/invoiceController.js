@@ -89,7 +89,10 @@ exports.createInvoice = async (req, res) => {
 // @access Private
 exports.getInvoices = async (req, res) => {
   try {
-    const invoices = await Invoice.find().populate("user", "name email");
+    const invoices = await Invoice.find({ user: req.user.id }).populate(
+      "user",
+      "name email"
+    );
     res.status(200).json(invoices);
   } catch (error) {
     res.status(500).json({
@@ -108,11 +111,12 @@ exports.getInvoiceById = async (req, res) => {
       "user",
       "name email"
     );
-    if (invoice) {
-      res.status(200).json(invoice);
-    } else {
-      res.status(404).json({ message: "Invoice not found" });
+    if (!invoice) return res.status(404).json({ message: "Invoice not found" });
+    // Check if the invoice belongs to the user
+    if (invoice.user.toString() !== req.user.id) {
+      return res.status(401).json({ message: "Not authorized" });
     }
+    res.json(invoice);
   } catch (error) {
     res.status(500).json({
       message: "Error fetching invoice",
