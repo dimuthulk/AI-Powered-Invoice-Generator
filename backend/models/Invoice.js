@@ -29,7 +29,12 @@ const invoiceSchema = new mongoose.Schema(
     items: [itemSchema],
     notes: { type: String },
     paymentTerms: { type: String, default: "Net 15" },
-    status: { type: String, enum: ["Paid", "Unpaid"], default: "Unpaid" },
+    // Allow Pending as well (frontend may use Pending)
+    status: {
+      type: String,
+      enum: ["Paid", "Unpaid", "Pending"],
+      default: "Unpaid",
+    },
     subtotal: Number,
     taxTotal: Number,
     total: Number,

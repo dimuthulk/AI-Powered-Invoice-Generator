@@ -1,4 +1,4 @@
-// models/User.js
+// models/User.js (CommonJS)
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
@@ -18,34 +18,29 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       minLength: 6,
-      select: false,
+      select: false, //tells Mongoose: "Whenever someone fetches a user (e.g., to display a profile), DO NOT include the password in the result."
     },
     businessName: { type: String, default: "" },
     address: { type: String, default: "" },
     phone: { type: String, default: "" },
+    avatar: { type: String, default: "" },
   },
   { timestamps: true }
 );
 
-// Hash password before saving
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
-    return next();
-  }
+  if (!this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
-// Method to compare password
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Change the MongoDB collection (table) name used by this model:
-const collectionName = "users"; // <-- set desired collection name here
+const collectionName = "users";
 
-// If the model was already registered, remove it to avoid OverwriteModelError
 if (mongoose.models && mongoose.models.User) {
   if (typeof mongoose.deleteModel === "function") {
     mongoose.deleteModel("User");
@@ -54,7 +49,6 @@ if (mongoose.models && mongoose.models.User) {
   }
 }
 
-// Create and export the model using the explicit collection name
 const User = mongoose.model("User", userSchema, collectionName);
 
 module.exports = User;

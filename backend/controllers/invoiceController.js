@@ -6,7 +6,7 @@ const Invoice = require("../models/Invoice");
 
 exports.createInvoice = async (req, res) => {
   try {
-    const user = req.user;
+    const userId = req.user?.id || req.user?._id || req.user;
     const {
       invoiceNumber,
       invoiceDate,
@@ -35,11 +35,7 @@ exports.createInvoice = async (req, res) => {
       const unitPrice = Number(item.unitPrice) || 0;
       // support both `taxPercent` (old clients) and `taxPercentage` (schema)
       const taxPercentage =
-        item.taxPercentage != null
-          ? Number(item.taxPercentage)
-          : item.taxPercent != null
-          ? Number(item.taxPercent)
-          : 0;
+        item.taxPercentage != null ? Number(item.taxPercentage) : 0;
 
       const lineSubtotal = unitPrice * quantity;
       const lineTax = (lineSubtotal * (taxPercentage || 0)) / 100;
@@ -60,7 +56,7 @@ exports.createInvoice = async (req, res) => {
     const total = subtotal + taxTotal;
 
     const invoice = new Invoice({
-      user,
+      user: userId,
       invoiceNumber,
       invoiceDate,
       dueDate,
@@ -190,7 +186,8 @@ exports.updateInvoice = async (req, res) => {
       return res.status(404).json({ message: "Invoice not found" });
     }
 
-    invoice.user = user;
+    // ensure the stored user field is the requesting user's id
+    invoice.user = req.user?.id || req.user?._id || req.user;
     invoice.invoiceNumber = invoiceNumber;
     invoice.invoiceDate = invoiceDate;
     invoice.dueDate = dueDate;

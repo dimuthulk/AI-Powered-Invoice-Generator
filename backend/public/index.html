@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>AI-Powered Invoice Generator</title>
+    <style>
+        :root{--bg:#0f1724;--card:#0b1220;--muted:#9aa4b2;--accent:#3b82f6;--success:#10b981}
+        *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+        body{margin:0;background:linear-gradient(180deg,#071026 0%, #07172b 100%);color:#e6eef8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px}
+        .container{width:100%;max-width:980px}
+        header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+        .brand{display:flex;gap:14px;align-items:center}
+        .logo{width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700;color:white}
+        h1{margin:0;font-size:20px}
+        p.lead{margin:0;color:var(--muted);font-size:13px}
+        .card{background:var(--card);border-radius:12px;padding:20px;box-shadow:0 6px 24px rgba(2,6,23,.6)}
+        .grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
+        form{display:flex;flex-direction:column;gap:12px}
+        label{font-size:13px;color:var(--muted)}
+        input,textarea,select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.04);background:rgba(255,255,255,.02);color:inherit;font-size:14px}
+        textarea{min-height:80px;resize:vertical}
+        .items{background:rgba(255,255,255,.02);padding:10px;border-radius:8px;display:flex;flex-direction:column;gap:8px}
+        .item-row{display:grid;grid-template-columns:1fr 90px 90px 36px;gap:8px;align-items:center}
+        .item-row input{padding:8px}
+        button{cursor:pointer;border:0;padding:10px 12px;border-radius:8px;background:var(--accent);color:white;font-weight:600}
+        .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.06);color:var(--muted)}
+        .summary{display:flex;flex-direction:column;gap:12px}
+        .summary .box{background:linear-gradient(180deg,rgba(255,255,255,.02),transparent);padding:12px;border-radius:8px}
+        .total{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:18px}
+        .notice{font-size:13px;color:var(--muted)}
+        .actions{display:flex;gap:8px;justify-content:flex-end}
+        footer{margin-top:14px;text-align:center;color:var(--muted);font-size:13px}
+        @media(max-width:880px){.grid{grid-template-columns:1fr;}.brand h1{font-size:16px}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="brand">
+                <div class="logo">AI</div>
+                <div>
+                    <h1>AI-Powered Invoice Generator</h1>
+                    <p class="lead">Generate invoices from simple inputs. Connects to your backend to create PDF invoices.</p>
+                </div>
+            </div>
+            <div class="notice">Backend endpoint: <code>/api/generate</code></div>
+        </header>
+
+        <div class="card grid">
+            <section>
+                <form id="invoiceForm" class="card" autocomplete="off">
+                    <div>
+                        <label for="from">From (your company)</label>
+                        <input id="from" name="from" placeholder="Company name, address" value="ACME Inc.">
+                    </div>
+
+                    <div>
+                        <label for="to">Bill to (client)</label>
+                        <input id="to" name="to" placeholder="Client name, client address">
+                    </div>
+
+                    <div>
+                        <label for="notes">Notes / Terms</label>
+                        <textarea id="notes" name="notes" placeholder="Payment terms, notes...">Due in 14 days</textarea>
+                    </div>
+
+                    <div>
+                        <label>Line items</label>
+                        <div class="items" id="itemsContainer">
+                            <!-- item rows injected here -->
+                        </div>
+                        <div style="display:flex;justify-content:space-between;margin-top:8px">
+                            <button type="button" id="addItem" class="btn-ghost">+ Add item</button>
+                            <div style="display:flex;gap:8px">
+                                <button type="button" id="clearItems" class="btn-ghost">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="actions" style="margin-top:8px">
+                        <button type="submit">Generate Invoice (PDF)</button>
+                    </div>
+                </form>
+            </section>
+
+            <aside class="summary">
+                <div class="box">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <div>
+                            <strong>Preview</strong>
+                            <div style="font-size:13px;color:var(--muted)">Quick invoice summary</div>
+                        </div>
+                        <div id="status" style="font-size:13px;color:var(--muted)">Idle</div>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <div style="display:flex;justify-content:space-between"><div class="notice">Subtotal</div><div id="subtotal">$0.00</div></div>
+                    <div style="display:flex;justify-content:space-between"><div class="notice">Tax (0%)</div><div id="tax">$0.00</div></div>
+                    <div class="total"><div>Total</div><div id="total">$0.00</div></div>
+                </div>
+
+                <div class="box">
+                    <div style="display:flex;gap:8px">
+                        <button id="downloadSample" class="btn-ghost">Download sample</button>
+                        <button id="testEndpoint">Ping backend</button>
+                    </div>
+                </div>
+
+            </aside>
+        </div>
+
+        <footer>
+            This landing page posts JSON to /api/generate. Adjust the endpoint in the script if your backend uses a different path.
+        </footer>
+    </div>
+
+    <script>
+        // Minimal client to manage items, totals, and send to backend
+        const itemsContainer = document.getElementById('itemsContainer');
+        const addItemBtn = document.getElementById('addItem');
+        const clearItemsBtn = document.getElementById('clearItems');
+        const subtotalEl = document.getElementById('subtotal');
+        const taxEl = document.getElementById('tax');
+        const totalEl = document.getElementById('total');
+        const statusEl = document.getElementById('status');
+        const invoiceForm = document.getElementById('invoiceForm');
+        const endpoint = '/api/generate'; // change if backend uses another route
+
+        function currency(v){ return '$' + Number(v || 0).toFixed(2); }
+
+        function createItemRow(item = {desc:'', qty:1, price:0}){
+            const row = document.createElement('div');
+            row.className = 'item-row';
+            row.innerHTML = `
+                <input class="desc" placeholder="Description" value="${escapeHtml(item.desc)}">
+                <input class="qty" type="number" min="0" value="${item.qty}">
+                <input class="price" type="number" min="0" step="0.01" value="${item.price}">
+                <button type="button" class="remove" title="Remove">✕</button>
+            `;
+            row.querySelector('.remove').addEventListener('click', ()=>{ row.remove(); recalc(); });
+            row.querySelectorAll('input').forEach(i => i.addEventListener('input', recalc));
+            itemsContainer.appendChild(row);
+            recalc();
+        }
+
+        function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+        function recalc(){
+            let sub = 0;
+            itemsContainer.querySelectorAll('.item-row').forEach(r=>{
+                const q = parseFloat(r.querySelector('.qty').value) || 0;
+                const p = parseFloat(r.querySelector('.price').value) || 0;
+                sub += q * p;
+            });
+            const taxRate = 0; // adjust or add UI for tax
+            const tax = sub * taxRate;
+            const total = sub + tax;
+            subtotalEl.textContent = currency(sub);
+            taxEl.textContent = currency(tax);
+            totalEl.textContent = currency(total);
+        }
+
+        addItemBtn.addEventListener('click', ()=> createItemRow());
+        clearItemsBtn.addEventListener('click', ()=>{ itemsContainer.innerHTML=''; recalc(); });
+
+        // Seed with one row
+        createItemRow({desc:'Consulting (1 hour)', qty:1, price:150});
+
+        // Form submit: send JSON to backend and handle PDF or JSON response
+        invoiceForm.addEventListener('submit', async (e)=>{
+            e.preventDefault();
+            statusEl.textContent = 'Sending...';
+            const payload = {
+                from: document.getElementById('from').value,
+                to: document.getElementById('to').value,
+                notes: document.getElementById('notes').value,
+                items: Array.from(itemsContainer.querySelectorAll('.item-row')).map(r=>({
+                    description: r.querySelector('.desc').value,
+                    qty: Number(r.querySelector('.qty').value) || 0,
+                    price: Number(r.querySelector('.price').value) || 0
+                }))
+            };
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/pdf, application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if(!res.ok) throw new Error('Server returned ' + res.status);
+
+                const ct = res.headers.get('content-type') || '';
+
+                if(ct.includes('application/pdf')){
+                    const blob = await res.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url; a.download = 'invoice.pdf'; document.body.appendChild(a); a.click();
+                    a.remove(); URL.revokeObjectURL(url);
+                    statusEl.textContent = 'PDF downloaded';
+                } else {
+                    const json = await res.json();
+                    statusEl.textContent = json.message || 'Invoice created';
+                    // If backend returns URL to PDF, open it
+                    if(json.url) window.open(json.url, '_blank');
+                }
+            } catch(err){
+                statusEl.textContent = 'Error';
+                alert('Request failed: ' + err.message);
+            } finally {
+                setTimeout(()=>{ if(statusEl.textContent !== 'Error') statusEl.textContent = 'Idle'}, 2000);
+            }
+        });
+
+        // Quick backend tester and sample download stub
+        document.getElementById('testEndpoint').addEventListener('click', async ()=>{
+            statusEl.textContent = 'Pinging...';
+            try{
+                const r = await fetch(endpoint, {method:'OPTIONS'});
+                statusEl.textContent = r.ok ? 'Backend reachable' : 'Backend responded ' + r.status;
+            }catch(e){
+                statusEl.textContent = 'No backend';
+            } finally { setTimeout(()=>statusEl.textContent='Idle',1200); }
+        });
+
+        document.getElementById('downloadSample').addEventListener('click', ()=>{
+            // Create a quick sample invoice JSON and download as .json for testing the backend
+            const sample = {
+                from: 'ACME Inc.',
+                to: 'Client Co.',
+                items: [{description:'Sample service', qty:1, price:100}],
+                notes: 'Sample invoice'
+            };
+            const blob = new Blob([JSON.stringify(sample, null, 2)], {type:'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'sample-invoice.json'; a.click(); URL.revokeObjectURL(url);
+        });
+
+    </script>
+</body>
+</html></div>

@@ -1,9 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import Invoice from "../models/Invoice.js";
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.GOOGLE_GENAI_API_KEY,
-});
+const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY });
 
 const parseInvoiceFromText = async (req, res) => {
   const { text } = req.body;
@@ -20,6 +18,7 @@ const parseInvoiceFromText = async (req, res) => {
       address: "",
       items: [],
     };
+
     try {
       const invMatch = /INV[-_\s]?(\d{2,}|\d{4}-\d{3,})/i.exec(txt);
       if (invMatch) invoice.invoiceNumber = invMatch[0];

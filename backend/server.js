@@ -22,8 +22,11 @@ app.use(
 // Connect to the database
 connectDB();
 
-// Middleware to parse JSON requests
+// Parse incoming JSON payloads for request bodies
 app.use(express.json());
+
+// Serve static files from the "public" directory (e.g., frontend assets like index.html, CSS, JS, images)
+app.use(express.static(path.join(__dirname, "public")));
 
 // Define routes
 app.get("/", (req, res) => {
@@ -55,6 +58,9 @@ app.use("/api/ai", aiRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 5000;
+
+// console.log(process.env);
+
 app.listen(PORT, () => {
   console.log(`Server is running on port http://localhost:${PORT}`);
 });
