@@ -11,22 +11,27 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null); // Logged-in user object
+  const [loading, setLoading] = useState(true); // Used until we check auth status
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    checkAuthStatus();
+    checkAuthStatus(); // auto-check auth status on page load
   }, []);
 
   const checkAuthStatus = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const useStr = localStorage.getItem("user");
+      // Local storage = a small storage space inside the browser (It keeps data even after a refresh, tab close, or restart).
+      const token = localStorage.getItem("token"); // If the values does NOT exist it will return null
+      const userStr = localStorage.getItem("user"); // localStorage values are ALWAYS strings
 
-      if (token && useStr) {
-        const userData = JSON.parse(useStr);
+      // Check if both token and user data exist in localStorage
+      if (token && userStr) {
+        // Parse the user string from localStorage back into a JavaScript object
+        const userData = JSON.parse(userStr);
+        // Update the user state with the parsed user data
         setUser(userData);
+        // Mark the user as authenticated
         setIsAuthenticated(true);
       }
     } catch (error) {
@@ -45,11 +50,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    // Remove the authentication token from browser storage
     localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
+    // Remove the user data from browser storage
     localStorage.removeItem("user");
+    // Clear the user state by setting it to null
     setUser(null);
+    // Mark the user as unauthenticated
     setIsAuthenticated(false);
+    // Redirect to the home page
     window.location.href = "/";
   };
 
@@ -59,6 +68,7 @@ export const AuthProvider = ({ children }) => {
     setUser(newUserData);
   };
 
+  // This is the data you are giving to all components.
   const value = {
     user,
     loading,

@@ -15,7 +15,7 @@ const ProfileDropdown = ({
     <div className="relative">
       <button
         onClick={onToggle}
-        className="flex items-center space-x-3 rounded-xl hover:bg-gray-50 transition-colors duration-200"
+        className="flex items-center space-x-3 rounded-xl hover:bg-gray-50 transition-colors duration-200 px-3 py-2"
       >
         {avatar ? (
           <img
@@ -30,6 +30,8 @@ const ProfileDropdown = ({
             </span>
           </div>
         )}
+
+        {/* This text shows only on tablets and desktops. */}
         <div className="hidden sm:block text-left">
           <p className="text-sm font-medium text-gray-900">{companyName}</p>
           <p className="text-xs text-gray-500">{email}</p>

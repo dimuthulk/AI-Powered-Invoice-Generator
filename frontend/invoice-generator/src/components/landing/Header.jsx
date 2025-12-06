@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FileText, Menu, X } from "lucide-react";
+import { FileText, LaptopMinimalCheck, Menu, X } from "lucide-react";
 import ProfileDropdown from "../layout/ProfileDropdown";
 import Button from "../ui/Button";
 import { useAuth } from "../../context/AuthContext";
@@ -16,15 +16,23 @@ function Header() {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
   useEffect(() => {
+    let ticking = false; // ← prevents multiple calls in same frame
+
+    const updateScrollState = () => {
+      setIsScrolled(window.scrollY > 20); // trigger after scrolling 20px
+      ticking = false; // ← ready for next frame
+    };
+
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      if (!ticking) {
+        requestAnimationFrame(updateScrollState); // ← runs at ~60fps max
+        ticking = true; // ← prevent new rAF until this one is done
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []); // [] ← this means "run only after first render"
 
   return (
     <header
@@ -36,7 +44,7 @@ function Header() {
         <div className="flex items-center justify-between h-16 lg:h-20">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-blue-900 rounded-md flex items-center justify-center">
-              <FileText className="w-4 h-4 text-white" />
+              <LaptopMinimalCheck className="w-4 h-4 text-white" />
             </div>
             <span className="text-xl font-bold text-gray-900">
               AI Invoice App
@@ -67,7 +75,9 @@ function Header() {
               <ProfileDropdown
                 isOpen={profileDropdownOpen}
                 onToggle={(e) => {
-                  e.stopPropagation();
+                  e.stopPropagation(); // Prevent the click from bubbling up ( Imagine clicking a light switch inside a box.)
+                  // Event bubbling is how browser events naturally flow through the DOM tree from the target element upward to its parents.
+
                   setProfileDropdownOpen(!profileDropdownOpen);
                 }}
                 avatar={user?.avatar || ""}
@@ -85,7 +95,7 @@ function Header() {
                 </Link>
                 <Link
                   to="/signup"
-                  className="bg-gradient-to-r from-blue-950 to-blue-900 hover:bg-gray-800 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 hover:scale-105 hover:shadow-lg"
+                  className="bg-linear-to-r from-blue-950 to-blue-900 hover:bg-gray-800 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 hover:scale-105 hover:shadow-lg"
                 >
                   Sign Up
                 </Link>

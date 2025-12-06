@@ -42,7 +42,7 @@ const Hero = () => {
         </div>
         <div className="mt-12 sm:mt-16 relative max-w-5xl mx-auto">
           <img
-            src=""
+            src="../src/assets/main-hero.png"
             alt="Invoice App Screenshot"
             className="rounded-2xl shadow-2xl shadow-gray-300 border-4 border-gray-200/20"
           />
